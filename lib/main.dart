@@ -11,7 +11,7 @@ class ScoreHistoryState extends ChangeNotifier {
   }
 }
 
-class TeamOneState extends ChangeNotifier {
+class TeamOneScoreState extends ChangeNotifier {
   int count = 0;
 
   addPoints(int points) {
@@ -20,11 +20,29 @@ class TeamOneState extends ChangeNotifier {
   }
 }
 
-class TeamTwoState extends ChangeNotifier {
+class TeamOneNameState extends ChangeNotifier {
+  String name = "Team One";
+
+  updateName(String name) {
+    this.name = name;
+    notifyListeners();
+  }
+}
+
+class TeamTwoScoreState extends ChangeNotifier {
   int count = 0;
 
   addPoints(int points) {
     count += points;
+    notifyListeners();
+  }
+}
+
+class TeamTwoNameState extends ChangeNotifier {
+  String name = "Team One";
+
+  updateName(String name) {
+    this.name = name;
     notifyListeners();
   }
 }
@@ -55,14 +73,20 @@ class AppContext extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => TeamOneState(),
+          create: (context) => TeamOneScoreState(),
         ),
         ChangeNotifierProvider(
-          create: (context) => TeamTwoState(),
+          create: (context) => TeamTwoScoreState(),
         ),
         ChangeNotifierProvider(
           create: (context) => ScoreHistoryState(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TeamOneNameState(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TeamTwoNameState(),
+        ),
       ],
       child: const HomeWidget(),
     );
@@ -74,8 +98,8 @@ class HomeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var state = context.watch<ScoreHistoryState>();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Basketball Tracker'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -110,13 +134,24 @@ class TeamOneBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var state = context.watch<TeamOneState>();
+    var state = context.watch<TeamOneScoreState>();
+    var teamOneNameState = context.watch<TeamOneNameState>();
+    var teamOneName = teamOneNameState.name;
     var scoreHistoryState = context.watch<ScoreHistoryState>();
+    TextEditingController myController = TextEditingController();
+    myController.text = teamOneName;
 
     return Container(
       margin: const EdgeInsets.all(10.0),
       child: Column(
         children: [
+          SizedBox(
+            width: 150,
+            child: TextField(
+              controller: myController,
+              onSubmitted: (value) => {teamOneNameState.updateName(value)},
+            ),
+          ),
           Text(
             '${state.count} Points',
             style: const TextStyle(fontSize: 36),
@@ -124,7 +159,7 @@ class TeamOneBody extends StatelessWidget {
           ElevatedButton(
             onPressed: () => {
               state.addPoints(1),
-              scoreHistoryState.udpateHistory("Team One", 1)
+              scoreHistoryState.udpateHistory(teamOneName, 1)
             },
             child: const Row(
               children: [
@@ -136,7 +171,7 @@ class TeamOneBody extends StatelessWidget {
           ElevatedButton(
             onPressed: () => {
               state.addPoints(2),
-              scoreHistoryState.udpateHistory("Team One", 2)
+              scoreHistoryState.udpateHistory(teamOneName, 2)
             },
             child: const Row(
               children: [
@@ -148,7 +183,7 @@ class TeamOneBody extends StatelessWidget {
           ElevatedButton(
             onPressed: () => {
               state.addPoints(3),
-              scoreHistoryState.udpateHistory("Team One", 3)
+              scoreHistoryState.udpateHistory(teamOneName, 3)
             },
             child: const Row(
               children: [
@@ -168,13 +203,24 @@ class TeamTwoBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var state = context.watch<TeamTwoState>();
+    var state = context.watch<TeamTwoScoreState>();
+    var teamTwoNameState = context.watch<TeamTwoNameState>();
+    var teamTwoName = teamTwoNameState.name;
     var scoreHistoryState = context.watch<ScoreHistoryState>();
+    TextEditingController myController = TextEditingController();
+    myController.text = teamTwoName;
 
     return Container(
       margin: const EdgeInsets.all(10.0),
       child: Column(
         children: [
+          SizedBox(
+            width: 150,
+            child: TextField(
+              controller: myController,
+              onSubmitted: (value) => {teamTwoNameState.updateName(value)},
+            ),
+          ),
           Text(
             '${state.count} Points',
             style: const TextStyle(fontSize: 36),
@@ -182,7 +228,7 @@ class TeamTwoBody extends StatelessWidget {
           ElevatedButton(
             onPressed: () => {
               state.addPoints(1),
-              scoreHistoryState.udpateHistory("Team Two", 1)
+              scoreHistoryState.udpateHistory(teamTwoName, 1)
             },
             child: const Row(
               children: [
@@ -194,7 +240,7 @@ class TeamTwoBody extends StatelessWidget {
           ElevatedButton(
             onPressed: () => {
               state.addPoints(2),
-              scoreHistoryState.udpateHistory("Team Two", 2)
+              scoreHistoryState.udpateHistory(teamTwoName, 2)
             },
             child: const Row(
               children: [
@@ -206,7 +252,7 @@ class TeamTwoBody extends StatelessWidget {
           ElevatedButton(
             onPressed: () => {
               state.addPoints(3),
-              scoreHistoryState.udpateHistory("Team Two", 3)
+              scoreHistoryState.udpateHistory(teamTwoName, 3)
             },
             child: const Row(
               children: [
