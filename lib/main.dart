@@ -2,47 +2,29 @@ import 'package:basketballtracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CounterState extends ChangeNotifier {
-  int count = 0;
+class ScoreHistoryState extends ChangeNotifier {
+  List<String> history = [];
 
-  updateCount() {
-    count++;
+  udpateHistory(String teamName, int pointsScored) {
+    history.add('$teamName scored $pointsScored points');
     notifyListeners();
   }
 }
 
 class TeamOneState extends ChangeNotifier {
   int count = 0;
-  addOnePoint() {
-    count += 1;
-    notifyListeners();
-  }
 
-  addTwoPoints() {
-    count += 2;
-    notifyListeners();
-  }
-
-  addThreePoints() {
-    count += 3;
+  addPoints(int points) {
+    count += points;
     notifyListeners();
   }
 }
 
 class TeamTwoState extends ChangeNotifier {
   int count = 0;
-  addOnePoint() {
-    count += 1;
-    notifyListeners();
-  }
 
-  addTwoPoints() {
-    count += 2;
-    notifyListeners();
-  }
-
-  addThreePoints() {
-    count += 3;
+  addPoints(int points) {
+    count += points;
     notifyListeners();
   }
 }
@@ -77,6 +59,9 @@ class AppContext extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => TeamTwoState(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ScoreHistoryState(),
         )
       ],
       child: const HomeWidget(),
@@ -89,6 +74,7 @@ class HomeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var state = context.watch<ScoreHistoryState>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Basketball Tracker'),
@@ -112,6 +98,7 @@ class HomeWidget extends StatelessWidget {
               ],
             ),
           ),
+          const ScoreHistoryBody(),
         ],
       ),
     );
@@ -124,6 +111,7 @@ class TeamOneBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var state = context.watch<TeamOneState>();
+    var scoreHistoryState = context.watch<ScoreHistoryState>();
 
     return Container(
       margin: const EdgeInsets.all(10.0),
@@ -134,7 +122,10 @@ class TeamOneBody extends StatelessWidget {
             style: const TextStyle(fontSize: 36),
           ),
           ElevatedButton(
-            onPressed: () => {state.addOnePoint()},
+            onPressed: () => {
+              state.addPoints(1),
+              scoreHistoryState.udpateHistory("Team One", 1)
+            },
             child: const Row(
               children: [
                 Icon(Icons.add),
@@ -143,7 +134,10 @@ class TeamOneBody extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () => {state.addTwoPoints()},
+            onPressed: () => {
+              state.addPoints(2),
+              scoreHistoryState.udpateHistory("Team One", 2)
+            },
             child: const Row(
               children: [
                 Icon(Icons.add),
@@ -152,7 +146,10 @@ class TeamOneBody extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () => {state.addThreePoints()},
+            onPressed: () => {
+              state.addPoints(3),
+              scoreHistoryState.udpateHistory("Team One", 3)
+            },
             child: const Row(
               children: [
                 Icon(Icons.add),
@@ -172,6 +169,7 @@ class TeamTwoBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var state = context.watch<TeamTwoState>();
+    var scoreHistoryState = context.watch<ScoreHistoryState>();
 
     return Container(
       margin: const EdgeInsets.all(10.0),
@@ -182,7 +180,10 @@ class TeamTwoBody extends StatelessWidget {
             style: const TextStyle(fontSize: 36),
           ),
           ElevatedButton(
-            onPressed: () => {state.addOnePoint()},
+            onPressed: () => {
+              state.addPoints(1),
+              scoreHistoryState.udpateHistory("Team Two", 1)
+            },
             child: const Row(
               children: [
                 Icon(Icons.add),
@@ -191,7 +192,10 @@ class TeamTwoBody extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () => {state.addTwoPoints()},
+            onPressed: () => {
+              state.addPoints(2),
+              scoreHistoryState.udpateHistory("Team Two", 2)
+            },
             child: const Row(
               children: [
                 Icon(Icons.add),
@@ -200,7 +204,10 @@ class TeamTwoBody extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () => {state.addThreePoints()},
+            onPressed: () => {
+              state.addPoints(3),
+              scoreHistoryState.udpateHistory("Team Two", 3)
+            },
             child: const Row(
               children: [
                 Icon(Icons.add),
@@ -209,6 +216,34 @@ class TeamTwoBody extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ScoreHistoryBody extends StatelessWidget {
+  const ScoreHistoryBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var state = context.watch<ScoreHistoryState>();
+    var history = state.history;
+
+    return Expanded(
+      child: Scrollbar(
+        thumbVisibility: true,
+        child: ListView.builder(
+          reverse: true,
+          shrinkWrap: true,
+          scrollDirection: Axis.vertical,
+          itemCount: history.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text('Time stamp: $index'),
+              subtitle: Text(history[index]),
+            );
+          },
+        ),
       ),
     );
   }
