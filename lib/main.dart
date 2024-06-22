@@ -1,4 +1,4 @@
-import 'package:basketballtracker/theme.dart';
+import 'package:basketball_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -105,6 +105,7 @@ class HomeWidget extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Image.asset(
             'assets/images/basketball.png',
@@ -112,7 +113,7 @@ class HomeWidget extends StatelessWidget {
           ),
           const IntrinsicHeight(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TeamOneBody(),
                 VerticalDivider(
@@ -149,7 +150,19 @@ class TeamOneBody extends StatelessWidget {
             width: 150,
             child: TextField(
               controller: myController,
-              onSubmitted: (value) => {teamOneNameState.updateName(value)},
+              onSubmitted: (value) {
+                teamOneNameState.updateName(value);
+              },
+              onEditingComplete: () => {
+                teamOneNameState.updateName(myController.text),
+              },
+              onTapOutside: (event) => {
+                teamOneNameState.updateName(myController.text),
+              },
+              decoration: const InputDecoration(
+                labelText: 'Team Name',
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
           Text(
@@ -207,7 +220,8 @@ class TeamTwoBody extends StatelessWidget {
     var teamTwoNameState = context.watch<TeamTwoNameState>();
     var teamTwoName = teamTwoNameState.name;
     var scoreHistoryState = context.watch<ScoreHistoryState>();
-    TextEditingController myController = TextEditingController();
+    TextEditingController myController =
+        TextEditingController(text: teamTwoName);
     myController.text = teamTwoName;
 
     return Container(
@@ -218,7 +232,19 @@ class TeamTwoBody extends StatelessWidget {
             width: 150,
             child: TextField(
               controller: myController,
-              onSubmitted: (value) => {teamTwoNameState.updateName(value)},
+              onSubmitted: (value) {
+                teamTwoNameState.updateName(value);
+              },
+              onEditingComplete: () => {
+                teamTwoNameState.updateName(myController.text),
+              },
+              onTapOutside: (event) => {
+                teamTwoNameState.updateName(myController.text),
+              },
+              decoration: const InputDecoration(
+                labelText: 'Team Name',
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
           Text(
@@ -274,23 +300,39 @@ class ScoreHistoryBody extends StatelessWidget {
   Widget build(BuildContext context) {
     var state = context.watch<ScoreHistoryState>();
     var history = state.history;
+    final ScrollController scrollController = ScrollController();
 
     return Expanded(
-      child: Scrollbar(
-        thumbVisibility: true,
-        child: ListView.builder(
-          reverse: true,
-          shrinkWrap: true,
-          scrollDirection: Axis.vertical,
-          itemCount: history.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text('Time stamp: $index'),
-              subtitle: Text(history[index]),
-            );
-          },
+      child: Stack(children: [
+        Scrollbar(
+          thumbVisibility: true,
+          child: ListView.builder(
+            controller: scrollController,
+            reverse: true,
+            shrinkWrap: true,
+            scrollDirection: Axis.vertical,
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text('Time stamp: $index'),
+                subtitle: Text(history[index]),
+              );
+            },
+          ),
         ),
-      ),
+        Positioned(
+          bottom: 10,
+          right: 10,
+          // scroll to top button
+          child: FloatingActionButton(
+            onPressed: () => scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.fastOutSlowIn),
+            child: const Icon(Icons.arrow_upward),
+          ),
+        )
+      ]),
     );
   }
 }
