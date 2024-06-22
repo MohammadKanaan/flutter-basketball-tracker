@@ -1,54 +1,17 @@
 import 'package:basketball_tracker/theme.dart';
+import 'package:basketball_tracker/widgets/score_history_area.dart';
+import 'package:basketball_tracker/widgets/team_score_area.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-class ScoreHistoryState extends ChangeNotifier {
-  List<String> history = [];
-
-  udpateHistory(String teamName, int pointsScored) {
-    history.add('$teamName scored $pointsScored points');
-    notifyListeners();
-  }
-}
-
-class TeamOneScoreState extends ChangeNotifier {
-  int count = 0;
-
-  addPoints(int points) {
-    count += points;
-    notifyListeners();
-  }
-}
-
-class TeamOneNameState extends ChangeNotifier {
-  String name = "Team One";
-
-  updateName(String name) {
-    this.name = name;
-    notifyListeners();
-  }
-}
-
-class TeamTwoScoreState extends ChangeNotifier {
-  int count = 0;
-
-  addPoints(int points) {
-    count += points;
-    notifyListeners();
-  }
-}
-
-class TeamTwoNameState extends ChangeNotifier {
-  String name = "Team One";
-
-  updateName(String name) {
-    this.name = name;
-    notifyListeners();
-  }
-}
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    // To install Riverpod, we need to add this widget above everything else.
+    // This should not be inside "MyApp" but as direct parameter to "runApp".
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -58,37 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Hooks Demo',
       theme: appTheme,
-      home: const AppContext(),
-    );
-  }
-}
-
-class AppContext extends StatelessWidget {
-  const AppContext({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => TeamOneScoreState(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TeamTwoScoreState(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ScoreHistoryState(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TeamOneNameState(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TeamTwoNameState(),
-        ),
-      ],
-      child: const HomeWidget(),
+      home: const HomeWidget(),
     );
   }
 }
@@ -115,224 +50,17 @@ class HomeWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                TeamOneBody(),
+                TeamScoreArea(),
                 VerticalDivider(
                   thickness: 2.0,
                 ),
-                TeamTwoBody(),
+                TeamScoreArea(),
               ],
             ),
           ),
           const ScoreHistoryBody(),
         ],
       ),
-    );
-  }
-}
-
-class TeamOneBody extends StatelessWidget {
-  const TeamOneBody({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var state = context.watch<TeamOneScoreState>();
-    var teamOneNameState = context.watch<TeamOneNameState>();
-    var teamOneName = teamOneNameState.name;
-    var scoreHistoryState = context.watch<ScoreHistoryState>();
-    TextEditingController myController = TextEditingController();
-    myController.text = teamOneName;
-
-    return Container(
-      margin: const EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 150,
-            child: TextField(
-              controller: myController,
-              onSubmitted: (value) {
-                teamOneNameState.updateName(value);
-              },
-              onEditingComplete: () => {
-                teamOneNameState.updateName(myController.text),
-              },
-              onTapOutside: (event) => {
-                teamOneNameState.updateName(myController.text),
-              },
-              decoration: const InputDecoration(
-                labelText: 'Team Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          Text(
-            '${state.count} Points',
-            style: const TextStyle(fontSize: 36),
-          ),
-          ElevatedButton(
-            onPressed: () => {
-              state.addPoints(1),
-              scoreHistoryState.udpateHistory(teamOneName, 1)
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.add),
-                Text('1 Point'),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => {
-              state.addPoints(2),
-              scoreHistoryState.udpateHistory(teamOneName, 2)
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.add),
-                Text('2 Points'),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => {
-              state.addPoints(3),
-              scoreHistoryState.udpateHistory(teamOneName, 3)
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.add),
-                Text('3 Points'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TeamTwoBody extends StatelessWidget {
-  const TeamTwoBody({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var state = context.watch<TeamTwoScoreState>();
-    var teamTwoNameState = context.watch<TeamTwoNameState>();
-    var teamTwoName = teamTwoNameState.name;
-    var scoreHistoryState = context.watch<ScoreHistoryState>();
-    TextEditingController myController =
-        TextEditingController(text: teamTwoName);
-    myController.text = teamTwoName;
-
-    return Container(
-      margin: const EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 150,
-            child: TextField(
-              controller: myController,
-              onSubmitted: (value) {
-                teamTwoNameState.updateName(value);
-              },
-              onEditingComplete: () => {
-                teamTwoNameState.updateName(myController.text),
-              },
-              onTapOutside: (event) => {
-                teamTwoNameState.updateName(myController.text),
-              },
-              decoration: const InputDecoration(
-                labelText: 'Team Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          Text(
-            '${state.count} Points',
-            style: const TextStyle(fontSize: 36),
-          ),
-          ElevatedButton(
-            onPressed: () => {
-              state.addPoints(1),
-              scoreHistoryState.udpateHistory(teamTwoName, 1)
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.add),
-                Text('1 Point'),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => {
-              state.addPoints(2),
-              scoreHistoryState.udpateHistory(teamTwoName, 2)
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.add),
-                Text('2 Points'),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => {
-              state.addPoints(3),
-              scoreHistoryState.udpateHistory(teamTwoName, 3)
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.add),
-                Text('3 Points'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ScoreHistoryBody extends StatelessWidget {
-  const ScoreHistoryBody({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var state = context.watch<ScoreHistoryState>();
-    var history = state.history;
-    final ScrollController scrollController = ScrollController();
-
-    return Expanded(
-      child: Stack(children: [
-        Scrollbar(
-          thumbVisibility: true,
-          child: ListView.builder(
-            controller: scrollController,
-            reverse: true,
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            itemCount: history.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text('Time stamp: $index'),
-                subtitle: Text(history[index]),
-              );
-            },
-          ),
-        ),
-        Positioned(
-          bottom: 10,
-          right: 10,
-          // scroll to top button
-          child: FloatingActionButton(
-            onPressed: () => scrollController.animateTo(
-                scrollController.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.fastOutSlowIn),
-            child: const Icon(Icons.arrow_upward),
-          ),
-        )
-      ]),
     );
   }
 }
