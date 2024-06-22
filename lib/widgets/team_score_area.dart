@@ -12,9 +12,6 @@ class TeamScoreArea extends HookConsumerWidget {
     var score = useState(0);
     var scoreHistory = ref.watch(scoreHistoryProvider.notifier);
 
-    TextEditingController myController = TextEditingController();
-    myController.text = teamName.value;
-
     return Container(
       margin: const EdgeInsets.all(10.0),
       child: Column(
@@ -22,15 +19,8 @@ class TeamScoreArea extends HookConsumerWidget {
           SizedBox(
             width: 150,
             child: TextField(
-              controller: myController,
-              onSubmitted: (value) {
-                teamName.value = myController.text;
-              },
-              onEditingComplete: () {
-                teamName.value = myController.text;
-              },
-              onTapOutside: (event) {
-                teamName.value = myController.text;
+              onChanged: (value) {
+                teamName.value = value;
               },
               decoration: const InputDecoration(
                 labelText: 'Team Name',
